@@ -8,7 +8,7 @@ import {
 
 import {
   routerConstant
-} from "@/assets/mock"
+} from "@/assets/mock/routerMock"
 NProgress.configure({
   showSpinner: false,
   minimum: 0.1,

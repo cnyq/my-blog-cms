@@ -2,7 +2,7 @@
   <el-menu
     :default-active="$route.path"
     class="aside-menu"
-    background-color="#313131"
+    background-color="#fff"
     text-color="#000"
     active-text-color="#fff"
     :collapse="isCollapse"
