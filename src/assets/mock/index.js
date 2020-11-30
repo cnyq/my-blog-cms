@@ -43,7 +43,6 @@ routerConstant.map(it => {
     }
   }
 })
-console.log(menuList)
 export {
   routerConstant,
   menuList

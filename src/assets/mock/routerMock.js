@@ -26,8 +26,8 @@ const routerConstant = [{
   grade: 1,
   group: '',
   groupTitle: '',
-  title: 'mdList',
-  router: '/article'
+  title: '文章',
+  router: '/articleList'
 }]
 
 export {

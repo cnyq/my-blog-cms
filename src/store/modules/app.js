@@ -1,6 +1,7 @@
 const states = {
 	isCollapse: sessionStorage.getItem('isCollapse') ? sessionStorage.getItem('isCollapse') - 0 ? true : false : false,
-	breadcrumbList: []
+	breadcrumbList: [],
+	keepAliveList: []
 }
 
 const mutations = {
@@ -11,6 +12,16 @@ const mutations = {
 	},
 	UPDATE_CRUMB_LIST(state, param) {
 		state.breadcrumbList = param
+	},
+	ADD_KEEP_ALIVE: (state, url) => {
+		if (!state.keepAliveList.includes(url)) {
+			state.keepAliveList.push(url)
+		}
+	},
+	DEL_KEEP_ALIVE: (state, url) => {
+		if (state.keepAliveList.includes(url)) {
+			state.keepAliveList.splice(state.keepAliveList.indexOf(url), 1)
+		}
 	}
 }
 const actions = {
@@ -23,6 +34,12 @@ const actions = {
 		commit
 	}, param) {
 		commit('UPDATE_CRUMB_LIST', param)
+	},
+	addKeepAlive({ commit }, url) {
+		commit('ADD_KEEP_ALIVE', url)
+	},
+	delKeepAlive({ commit }, url) {
+		commit('DEL_KEEP_ALIVE', url)
 	},
 }
 

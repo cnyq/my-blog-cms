@@ -15,7 +15,7 @@ NProgress.configure({
   ease: 'ease',
   speed: 500
 })
-
+const keepAliveArr = ['articleList']
 router.beforeEach(async (to, from, next) => {
   NProgress.start()
   let currentRouter = routerConstant.filter(it => {
@@ -27,6 +27,9 @@ router.beforeEach(async (to, from, next) => {
   if (currentRouter.length > 0) {
     let currentRouterObj = currentRouter[0]
     if (currentRouterObj.grade == 1) {
+      if (keepAliveArr.includes(to.name)) {
+        store.dispatch('app/addKeepAlive', to.name)
+      }
       if (currentRouterObj.router == '/home') {
         updateCrumbList = [{
           title: currentRouterObj.title,

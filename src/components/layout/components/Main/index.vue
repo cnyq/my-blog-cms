@@ -1,7 +1,7 @@
 <template>
   <div class="app-main">
     <transition name="fade-transform" mode="out-in">
-      <keep-alive :include="visitedViews">
+      <keep-alive :include="keepAliveList">
         <router-view :key="key" />
       </keep-alive>
     </transition>
@@ -14,9 +14,8 @@ export default {
     key() {
       return this.$route.fullPath
     },
-    visitedViews() {
-      let visitedViews = []
-      return []
+    keepAliveList() {
+      return this.$store.getters.keepAliveList
     }
   }
 }

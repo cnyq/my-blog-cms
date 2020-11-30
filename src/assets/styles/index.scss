@@ -1,2 +1,56 @@
 @import './transition.scss';
 @import './shelf.scss';
+/* 页面查询条件表单 */
+.filter-form {margin-bottom: 8px; position: relative;}
+.filter-form .el-form-item__label {padding-right: 0;line-height: 32px;min-width: 70px;} /* width: 100px; */
+.filter-form .el-form-item__content {line-height: 32px;}
+.filter-form .el-form-item__content > .el-input, .filter-form .el-form-item__content > .el-select {width: 152px;} /* 3个 174；4个 152 */
+.filter-form .el-form-item__content > .el-date-editor {width: 188px;} /* 3个 210；4个 188 */
+/* .filter-form .el-form-item__content > .el-date-editor.el-date-editor--datetimerange {width: 398px;} 3个 442；4个 398 */
+.filter-form .el-form-item__content > .el-date-editor.el-date-editor--daterange,
+.filter-form .el-form-item__content > .el-date-editor.el-date-editor--datetimerange,
+.filter-form .el-form-item__content > .el-date-editor.el-date-editor--monthrange {width: 398px;} /* 3个 442；4个 398 */
+.filter-form .el-form-item:not(:last-child) {margin-right: 20px;}
+.filter-form .el-form-item {margin-bottom: 16px;}
+/* .filter-form .el-form-item:last-child .el-button {float: left;} */
+.filter-form .el-form-item:last-child .el-button+.el-button {margin-left: 4px;}
+.filter-form .el-form-item:last-child .el-button+.el-button {margin-left: 4px;}
+.filter-form .el-input--suffix .el-input__inner {padding-right: 20px;}
+/* .filter-form .el-form-item:last-child .el-form-item__content {vertical-align: middle;} */
+/* 表格页面 表格 */
+.el-table thead {color: #1B253F !important;}
+.el-table thead th {padding: 8px 0; line-height: 1;background-color: #F5F7FA;}
+.el-table td,.el-table th {text-align: center !important;}
+.table-wrap .el-table__row .el-button--text {padding: 6px 0;position: relative;}
+.table-wrap .el-table__row .el-button--text:not(:last-child)::after {content: ''; position: absolute; width: 1px;height: 14px;background-color: #D8DDE7;top: 50%;transform: translateY(-50%);right: -9px;}
+.el-table tbody td {padding: 12px 0;}
+.el-table .el-table__empty-block {min-height: 52px;}
+.el-table .el-table__empty-text {line-height: 52px;}
+/* tbale 排序按钮 */
+.el-table .caret-wrapper {height: 21px;}
+.el-table .sort-caret.ascending {top: -1px;}
+.el-table .sort-caret.descending {bottom: 0;}
+/* 详情页面 */
+.detail-wrap{line-height: 40px;}
+/* el-card title 标题 */
+.detail-wrap .el-card:not(:last-child) {margin-bottom: 24px;}
+.detail-wrap .el-card .el-card__header {padding: 16px 32px;}
+.detail-wrap .el-card .el-card__header > div {line-height: 32px;}
+.detail-wrap .el-card .el-card__header .box-card-title{display: inline-block;line-height: 1;color: #1B253F;font-size: 16px;font-weight: 600;}
+.detail-wrap .el-card .el-card__body {padding: 24px 32px;}
+.detail-wrap .el-form-item {margin-bottom: 24px;}
+.detail-wrap .el-form-item:last-child {margin-bottom: 0;}
+.detail-wrap .el-form-item__label {padding-right: 0;line-height: 32px;min-width: 70px;vertical-align: text-bottom;}
+.detail-wrap .el-form-item .el-form-item__content {line-height: 30px;}
+.detail-wrap .el-form-item .el-form-item__content .el-input, .detail-wrap .el-form-item .el-form-item__content .el-select, .detail-wrap .el-form-item .el-form-item__content .el-autocomplete {width: 220px;}
+.detail-wrap .el-form-item .el-form-item__content .el-textarea {width: 400px;}
+.detail-wrap .el-form-item .el-form-item__content .el-input-number .el-input {width: auto;}
+.detail-wrap .el-form-item .el-form-item__content .width-400 {width: 400px;}
+.detail-wrap .el-form-item .el-button+.el-button {margin-left: 18px;}
+.detail-wrap .detail-filter-form {margin-bottom: 8px; position: relative;}
+.detail-wrap .detail-filter-form .el-form-item {margin-bottom: 16px;line-height: 1;}
+.detail-wrap .detail-filter-form .el-form-item__content .el-input, .detail-wrap .detail-filter-form .el-form-item__content .el-select {width: 152px;} /* 3个 174；4个 152 */
+.detail-wrap .detail-filter-form .el-form-item__content .el-date-editor {width: 188px;} /* 3个 210；4个 188 */
+.detail-wrap .detail-filter-form .el-form-item:not(:last-child) {margin-right: 20px;}
+.detail-wrap .detail-filter-form .el-form-item:last-child .el-button+.el-button {margin-left: 4px;}
+.text-right{text-align: right;}
