@@ -2,7 +2,6 @@ import axios from 'axios'
 import { Message } from 'element-ui'
 import store from '@/store'
 // import { getToken } from '@/utils/auth'
-import { getToken } from '@/utils/storage'
 
 
 if (process.env.NODE_ENV !== 'development') {
@@ -63,7 +62,7 @@ service.interceptors.response.use(
       })
       return Promise.reject(new Error(res.msg || 'Error'))
     }
-    return res.data
+    return res
   },
   error => {
     console.log('err' + error) // for debug

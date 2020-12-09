@@ -23,7 +23,6 @@ const titStatus = ((type) => {
 })
 
 export const setCrumbList = (to) => {
-  console.log(to)
   let currentRouter = routerConstant.filter(it => {
     return it.router == to.path
   }),

@@ -63,17 +63,17 @@ module.exports = {
     overlay: {
       warnings: false,
       errors: true
-    }
+    },
     // 代理服务器配置
-    // proxy: {
-    //     [process.env.VUE_APP_BASE_API]: {
-    //         target: `http://localhost:3000/api`,
-    //         changeOrigin: true,
-    //         pathRewrite: {
-    //            ['^' + process.env.VUE_APP_BASE_API]: ''
-    //         }
-    //     },
-    // }
+    proxy: {
+      '/cms': {
+        target: process.env.target,
+        changeOrigin: true,
+        pathRewrite: {
+          '^/cms': '/cms'
+        }
+      },
+    }
   },
   configureWebpack: () => {
     return {

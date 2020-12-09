@@ -13,7 +13,7 @@
       </el-form>
       <el-row>
         <el-col class="text-right">
-          <el-button type="primary" size="mini">保存</el-button>
+          <el-button type="primary" size="mini" @click="save">保存</el-button>
         </el-col>
       </el-row>
     </el-card>
@@ -29,9 +29,19 @@ export default {
       isEdit: false
     }
   },
+  methods:{
+    save(){
+      console.log('aaa')
+      let obj = {
+        aaa: 'bbb'
+      }
+      this.$axios.post('/acticleAdd',obj)
+    }
+  },
   beforeRouteLeave(to, from, next) {
     from.meta.isEdit = this.isEdit;
     next();
   },
+  
 }
 </script>
