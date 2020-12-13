@@ -18,6 +18,12 @@ const titStatus = ((type) => {
     case 'add':
       tit = '新增'
       break
+    case 'view':
+      tit = '查看'
+      break
+    case 'edit':
+      tit = '编辑'
+      break
   }
   return tit
 })
