@@ -1,6 +1,6 @@
 import Vue from 'vue'
 
-const requireComponent = require.context('./', true, /\.vue$/)
+const requireComponent = require.context('./', true, /\b((?!demo).)+\.vue$/)
 
 requireComponent.keys().forEach(fileName => {
     const componentConfig = requireComponent(fileName)

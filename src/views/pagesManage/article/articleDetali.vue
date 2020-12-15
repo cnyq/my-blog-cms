@@ -28,8 +28,15 @@
           ></el-input>
         </el-form-item>
         <el-form-item label="写作日期：" prop="time">
-          <el-date-picker v-model="form.time" type="date" placeholder="选择日期">
+          <el-date-picker
+            v-model="form.time"
+            type="date"
+            placeholder="选择日期"
+          >
           </el-date-picker>
+        </el-form-item>
+        <el-form-item label="上传文档：">
+          <upLoadMd v-model="aaa"></upLoadMd>
         </el-form-item>
       </el-form>
       <el-row>
@@ -48,10 +55,12 @@ export default {
       form: {},
       rules: {},
       isEdit: false,
+      aaa: "/cms/uploadMd",
     }
   },
   methods: {
     save() {
+      console.log("aaa")
       this.$axios.post("/acticleAdd", this.form)
     },
   },
