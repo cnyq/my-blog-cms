@@ -1,12 +1,17 @@
 <template>
   <div class="detail-wrap">
     <el-card class="box-card">
-      <el-form label-width="100px" :model="form" :rules="rules" ref="form">
+      <el-form
+        label-width="100px"
+        :model="form"
+        :rules="rules"
+        ref="articleDetaliForm"
+      >
         <el-form-item label="文章名称：" prop="name">
           <el-input
             size="small"
             v-model="form.name"
-            placeholder="请输入内容"
+            placeholder="请输入文章名称"
             :maxlength="20"
           ></el-input>
         </el-form-item>
@@ -14,7 +19,7 @@
           <el-input
             type="textarea"
             :rows="2"
-            placeholder="请输入内容"
+            placeholder="请输入文章简介"
             v-model="form.synopsis"
           >
           </el-input>
@@ -23,20 +28,20 @@
           <el-input
             size="small"
             v-model="form.author"
-            placeholder="请输入内容"
+            placeholder="请输入作者名称"
             :maxlength="20"
           ></el-input>
         </el-form-item>
-        <el-form-item label="写作日期：" prop="time">
+        <el-form-item label="写作日期：" prop="writing_time">
           <el-date-picker
-            v-model="form.time"
+            v-model="form.writing_time"
             type="date"
             placeholder="选择日期"
           >
           </el-date-picker>
         </el-form-item>
-        <el-form-item label="上传文档：">
-          <upLoadMd v-model="aaa"></upLoadMd>
+        <el-form-item label="上传文档：" prop="mdPath">
+          <upLoadMd v-model="form.mdPath"></upLoadMd>
         </el-form-item>
       </el-form>
       <el-row>
@@ -53,15 +58,33 @@ export default {
   data() {
     return {
       form: {},
-      rules: {},
+      rules: {
+        name: [{ required: true, message: "请输入文章名称", trigger: "blur" }],
+        synopsis: [
+          { required: true, message: "请输入文章简介", trigger: "blur" },
+        ],
+        author: [
+          { required: true, message: "请输入作者名称", trigger: "blur" },
+        ],
+        time: [
+          { required: true, message: "请输入选择写作时间", trigger: "change" },
+        ],
+        mdPath: [{ required: true, message: "请上传文档", trigger: "change" }],
+      },
       isEdit: false,
       aaa: "/cms/uploadMd",
     }
   },
   methods: {
+    validate(filed) {
+      this.$refs["articleDetaliForm"].validateField(filed)
+    },
     save() {
-      console.log("aaa")
-      this.$axios.post("/acticleAdd", this.form)
+      this.$refs["articleDetaliForm"].validate((valid) => {
+        if (valid) {
+          this.$axios.post("/acticleAdd", this.form)
+        }
+      })
     },
   },
   beforeRouteLeave(to, from, next) {

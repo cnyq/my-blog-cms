@@ -6,16 +6,17 @@
       :limit="1"
       :before-upload="beforeMdUpload"
       :on-success="onSuccess"
+      v-if="type != 'view' && !value"
     >
       <el-button size="small" type="primary">点击上传</el-button>
       <div class="el-upload__tip" slot="tip">提示：只能上传md文档</div>
     </el-upload>
-    {{ value }}{{type}}
+    <div>{{ value }}</div>
   </div>
 </template>
 <script>
 export default {
-  name: 'upLoadMd',
+  name: "upLoadMd",
   data() {
     return {
       uploadMdUrl: "/cms/uploadMd",
@@ -41,6 +42,9 @@ export default {
     },
     onSuccess(res) {
       console.log(res)
+      if (res.code == 200) {
+        this.$emit("input", res.data.url)
+      }
     },
   },
 }

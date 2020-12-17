@@ -102,7 +102,10 @@ export default {
     return {
       queryTime: [],
       isSave: false,
-      params: {},
+      params: {
+        pageSize: 10,
+        pageNum: 1
+      },
       tableLoading: false,
       tableData: [],
       total: 10,
@@ -112,10 +115,7 @@ export default {
   },
   methods: {
     loadData() {
-      // this.tableLoading = true
-      let queryTime = this.queryTime || []
-      this.params.startTime = queryTime.length > 0 ? queryTime[0] * 1 : ""
-      this.params.endTime = queryTime.length > 0 ? queryTime[1] * 1 : ""
+      this.$axios.get("/acticleList", {params: this.params})
     },
     query() {
       this.params.pageNum = 1
