@@ -2,22 +2,28 @@
   <div class="container">
     <div class="filter-form">
       <el-form :inline="true" :model="params" label-position="left">
-        <el-form-item label="活动名称：">
+        <el-form-item label="文章名称：">
           <el-input
             size="small"
-            v-model.trim="params.presentName"
-            placeholder="请输入活动名称"
+            v-model.trim="params.name"
+            placeholder="请输入文章名称"
           ></el-input>
         </el-form-item>
-        <el-form-item label="起止时间：">
+        <el-form-item label="作者名称：">
+          <el-input
+            size="small"
+            v-model.trim="params.author"
+            placeholder="请输入作者名称"
+          ></el-input>
+        </el-form-item>
+        <el-form-item label="写作时间：">
           <el-date-picker
             size="small"
             v-model="queryTime"
-            type="datetimerange"
+            type="daterange"
             range-separator="至"
             start-placeholder="开始时间"
             end-placeholder="结束时间"
-            :default-time="['00:00:00', '23:59:59']"
           ></el-date-picker>
         </el-form-item>
         <el-form-item>
@@ -41,29 +47,21 @@
         element-loading-background="rgba(255, 255, 255, 0.5)"
       >
         <el-table-column type="index" label="序号" width="80"></el-table-column>
-        <el-table-column prop="id" label="编号"></el-table-column>
+        <el-table-column prop="code" label="编号" width="180"></el-table-column>
+        <el-table-column label="文章名称">
+          <template slot-scope="scope">
+            <div style="text-align:left">{{scope.row.name}}</div>
+          </template>
+        </el-table-column>
+        <el-table-column label="写作时间">
+          <template slot-scope="scope">
+            <div>{{scope.row.writing_time | filterFormatTime("yyyy年MM月dd日")}}</div>
+          </template>
+        </el-table-column>
         <el-table-column
-          prop="presentName"
-          label="新人礼名称"
-        ></el-table-column>
-        <el-table-column
-          width="220"
-          prop="startTime"
-          label="开始时间"
-        ></el-table-column>
-        <el-table-column
-          width="220"
-          prop="endTime"
-          label="结束时间"
-        ></el-table-column>
-        <el-table-column
-          prop="registerCount"
-          label="注册总人数"
-        ></el-table-column>
-        <el-table-column
-          width="220"
-          prop="createTime"
-          label="创建时间"
+          prop="author"
+          label="作者名称"
+          width="200"
         ></el-table-column>
         <el-table-column label="操作" fixed="right" width="200">
           <template slot-scope="scope">
@@ -97,25 +95,40 @@
 
 <script>
 export default {
-  name: "articleList",
+  name: "articles",
   data() {
     return {
-      queryTime: [],
       isSave: false,
+      queryTime: [],
       params: {
         pageSize: 10,
-        pageNum: 1
+        pageNum: 1,
+        name: "",
+        author: "",
+        startTime: "",
+        endTime: "",
       },
       tableLoading: false,
       tableData: [],
-      total: 10,
+      total: 0,
     }
   },
-  created(){
-  },
+  created() {},
+
   methods: {
     loadData() {
-      this.$axios.get("/acticleList", {params: this.params})
+      this.params.startTime =
+        this.queryTime && this.queryTime.length == 2
+          ? this.queryTime[0] - 0
+          : ""
+      this.params.endTime =
+        this.queryTime && this.queryTime.length == 2
+          ? this.queryTime[1] - 0
+          : ""
+      this.$axios.get("/acticleList", { params: this.params }).then(res=>{
+        this.tableData = res.data.list
+        this.total = res.data.total
+      })
     },
     query() {
       this.params.pageNum = 1
@@ -134,7 +147,7 @@ export default {
       let id = row ? row.id : ""
       if (type == "add") {
         this.$router.push({
-          name: "articleDetali",
+          name: "articlesDetali",
           query: { type },
         })
       }
@@ -142,13 +155,12 @@ export default {
     initParams(isReset) {
       this.queryTime = []
       this.params = {
-        marketId: +sessionStorage.getItem("marketId"),
-        presentName: "",
-        startTime: "",
-        endTime: "",
-        presentStatus: "",
         pageSize: 10,
         pageNum: 1,
+        name: "",
+        author: "",
+        startTime: "",
+        endTime: "",
       }
       if (isReset) {
         this.loadData()
@@ -156,9 +168,7 @@ export default {
     },
   },
   beforeRouteEnter(to, from, next) {
-    if (
-      from.name == "articleDetali"
-    ) {
+    if (from.name == "articleDetali") {
       to.meta.isBack = true
       to.meta.isEdit = from.meta.isEdit
     } else {

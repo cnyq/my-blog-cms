@@ -41,7 +41,10 @@
           </el-date-picker>
         </el-form-item>
         <el-form-item label="上传文档：" prop="mdPath">
-          <upLoadMd v-model="form.mdPath"></upLoadMd>
+          <upLoadMd
+            v-model="form.mdPath"
+            @reuseValidate="reuseValidate"
+          ></upLoadMd>
         </el-form-item>
       </el-form>
       <el-row>
@@ -66,13 +69,12 @@ export default {
         author: [
           { required: true, message: "请输入作者名称", trigger: "blur" },
         ],
-        time: [
+        writing_time: [
           { required: true, message: "请输入选择写作时间", trigger: "change" },
         ],
         mdPath: [{ required: true, message: "请上传文档", trigger: "change" }],
       },
       isEdit: false,
-      aaa: "/cms/uploadMd",
     }
   },
   methods: {
@@ -82,9 +84,16 @@ export default {
     save() {
       this.$refs["articleDetaliForm"].validate((valid) => {
         if (valid) {
-          this.$axios.post("/acticleAdd", this.form)
+          this.form.writing_time = this.form.writing_time - 0
+          this.$axios.post("/acticleAdd", this.form).then((res) => {
+            this.isEdit = true
+            this.$router.back(-1)
+          })
         }
       })
+    },
+    reuseValidate(val) {
+      if (val) this.validate("mdPath")
     },
   },
   beforeRouteLeave(to, from, next) {

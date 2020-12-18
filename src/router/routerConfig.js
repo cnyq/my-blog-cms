@@ -12,7 +12,7 @@ NProgress.configure({
   ease: 'ease',
   speed: 500
 })
-const keepAliveArr = ['articleList']
+const keepAliveArr = ['articles']
 router.beforeEach(async (to, from, next) => {
   NProgress.start()
   if (keepAliveArr.includes(to.name)) {

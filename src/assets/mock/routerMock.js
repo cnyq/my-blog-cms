@@ -27,7 +27,7 @@ const routerConstant = [{
   group: '',
   groupTitle: '',
   title: '文章',
-  router: '/article'
+  router: '/articles'
 }]
 
 export {

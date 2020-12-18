@@ -44,6 +44,7 @@ export default {
       console.log(res)
       if (res.code == 200) {
         this.$emit("input", res.data.url)
+        this.$emit("reuseValidate", true)
       }
     },
   },
