@@ -25,7 +25,11 @@ const routes = [
     path: '/404',
     name: '404',
     component: () => import('@/components/pages/e404')
-  }, {
+  },{
+    path: '/login',
+    name: 'login',
+    component: () => import('@/components/pages/login')
+  },{
     path: '*', redirect: '/404', hidden: true
   },
 ];

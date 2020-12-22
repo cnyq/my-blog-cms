@@ -54,3 +54,13 @@
 .detail-wrap .detail-filter-form .el-form-item:not(:last-child) {margin-right: 20px;}
 .detail-wrap .detail-filter-form .el-form-item:last-child .el-button+.el-button {margin-left: 4px;}
 .text-right{text-align: right;}
+
+.isokimg{
+  animation-duration: 2s;
+  animation-fill-mode: forwards;
+  animation-iteration-count: infinite;
+  animation-name: placeholderShimmer;
+  animation-timing-function: linear;
+  background: linear-gradient(to right,#cccccc 30%,#f4f4f4 50%,#cccccc 70%);
+  background-size: 800px 104px;
+}
