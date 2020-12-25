@@ -4,53 +4,68 @@
       <el-form-item class="tit">
         <div class="hint">请登录</div>
       </el-form-item>
-      <el-form-item prop="user_name">
+      <el-form-item prop="username">
         <el-input
           size="small"
-          v-model.trim="params.user_name"
+          v-model.trim="params.username"
           placeholder="请输入用户名"
         >
           <i slot="prefix" class="el-input__icon el-icon-user"> </i>
         </el-input>
       </el-form-item>
-      <el-form-item prop="certificate">
+      <el-form-item prop="password">
         <el-input
+          type="password"
           size="small"
-          v-model.trim="params.certificate"
+          v-model.trim="params.password"
           placeholder="请输入密码"
         >
           <i slot="prefix" class="el-input__icon el-icon-lock"></i>
         </el-input>
       </el-form-item>
       <el-form-item>
-        <el-button size="small" type="primary" @click="login()" class="subBtn">登录</el-button>
+        <el-button size="small" type="primary" @click="login()" class="subBtn"
+          >登录</el-button
+        >
       </el-form-item>
     </el-form>
   </div>
 </template>
 <script>
+import { md5 } from "@/utils/crypto"
 export default {
   data() {
     return {
       params: {},
-      rules:{
-        user_name:[{ required: true, message: "请输入用户名", trigger: "blur" }],
-        certificate:[{ required: true, message: "请输入密码", trigger: "blur" }],
-      }
+      rules: {
+        username: [
+          { required: true, message: "请输入用户名", trigger: "blur" },
+        ],
+        password: [{ required: true, message: "请输入密码", trigger: "blur" }],
+      },
     }
   },
   methods: {
     login() {
       this.$refs["loginForm"].validate((valid) => {
-        if(valid){
+        if (valid) {
           console.log(this.params)
+          let _data = {
+            username: this.params.username,
+            password: md5(this.params.password),
+          }
+          this.$axios.post("/register", _data).then((res) => {
+            this.isEdit = true
+          })
+          this.$axios.post("/login", _data).then((res) => {
+            this.isEdit = true
+          })
         }
       })
     },
     validate(filed) {
       this.$refs["loginForm"].validateField(filed)
     },
-
   },
 }
 </script>
@@ -77,7 +92,7 @@ export default {
       color: #606266;
     }
   }
-  .subBtn{
+  .subBtn {
     width: 100%;
   }
 }
