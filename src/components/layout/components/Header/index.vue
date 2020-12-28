@@ -1,5 +1,5 @@
 <template>
-  <div class="siteHeader" :style="{background: styleSetting.lightBg}">
+  <div class="siteHeader" :style="{ background: styleSetting.lightBg }">
     <div class="siteLe">
       <span class="collapseControl" @click="collapseControl">
         <template v-if="!isCollapse">
@@ -13,7 +13,17 @@
         <Breadcrumb></Breadcrumb>
       </div>
     </div>
-    <el-avatar :size="35" :src="circleUrl" shape="square"></el-avatar>
+    <div class="siteRi">
+      <span class="username">{{ userInfo.username }}</span>
+      <el-dropdown trigger="click" @command="handleCommand">
+        <span class="el-dropdown-link">
+          <el-avatar :size="35" :src="circleUrl" shape="square"></el-avatar>
+        </span>
+        <el-dropdown-menu slot="dropdown">
+          <el-dropdown-item command="quit">退出</el-dropdown-item>
+        </el-dropdown-menu>
+      </el-dropdown>
+    </div>
   </div>
 </template>
 <script>
@@ -24,23 +34,36 @@ export default {
   data() {
     return {
       circleUrl:
-        "https://cube.elemecdn.com/9/c2/f0ee8a3c7c9638a54940382568c9dpng.png"
+        "https://cube.elemecdn.com/9/c2/f0ee8a3c7c9638a54940382568c9dpng.png",
     }
   },
   components: {
-    Breadcrumb
+    Breadcrumb,
   },
   computed: {
-    ...mapGetters(["isCollapse"]),
+    ...mapGetters(["isCollapse", "userInfo"]),
     styleSetting() {
       return styleSetting
-    }
+    },
   },
   methods: {
     collapseControl() {
       this.$store.dispatch("app/updateCollapse", !this.isCollapse)
-    }
-  }
+    },
+    quit() {
+      console.log("quit")
+      this.$store.dispatch("user/resetToken")
+      this.$store.dispatch("user/resetUserInfo")
+    },
+    handleCommand(e) {
+      console.log(e)
+      if (e == "quit") {
+        this.$store.dispatch("user/resetToken")
+        this.$store.dispatch("user/resetUserInfo")
+        this.$router.push({ path: "/login" })
+      }
+    },
+  },
 }
 </script>
 <style lang="scss">
@@ -60,8 +83,17 @@ export default {
     margin: 0 20px;
   }
   .el-avatar {
-    margin-right: 20px;
     cursor: pointer;
+  }
+  .siteRi {
+    display: flex;
+    align-items: center;
+    margin-right: 30px;
+  }
+  .username {
+    font-weight: bold;
+    font-size: 14px;
+    margin-right: 20px;
   }
 }
 </style>

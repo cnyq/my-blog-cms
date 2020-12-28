@@ -1,7 +1,8 @@
 import axios from 'axios'
+import router from '@/router'
 import { Message } from 'element-ui'
 import store from '@/store'
-// import { getToken } from '@/utils/auth'
+import { getToken } from '@/utils/auth'
 
 
 if (process.env.NODE_ENV !== 'development') {
@@ -53,6 +54,17 @@ service.interceptors.response.use(
         location.href = res.data
       }, 1000);
       return false
+    }
+    if (res.code === 401) {
+      Message({
+        message: '登录失效重新登录',
+        type: 'error',
+        duration: 2 * 1000,
+        onClose: () => {
+          router.push({ path: '/login' })
+        }
+      })
+      return Promise.reject(new Error('登录失效'))
     }
     if (res.code !== 0 && res.code !== 200) {
       Message({

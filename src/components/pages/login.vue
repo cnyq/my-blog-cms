@@ -45,6 +45,7 @@ export default {
       },
     }
   },
+  name: "login",
   methods: {
     login() {
       this.$refs["loginForm"].validate((valid) => {
@@ -54,11 +55,18 @@ export default {
             username: this.params.username,
             password: md5(this.params.password),
           }
-          this.$axios.post("/register", _data).then((res) => {
-            this.isEdit = true
-          })
+          // this.$axios.post("/register", _data).then((res) => {})
           this.$axios.post("/login", _data).then((res) => {
-            this.isEdit = true
+            if (res.data.status == 1) {
+              this.$store.dispatch("user/setToken", res.data.token)
+              this.$store.dispatch("user/setUserInfo", res.data.userInfo)
+              this.$router.push({ path: "/home" })
+            } else {
+              this.$message({
+                message: res.data.hint,
+                type: "error",
+              })
+            }
           })
         }
       })
