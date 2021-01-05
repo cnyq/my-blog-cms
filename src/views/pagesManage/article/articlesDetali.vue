@@ -13,6 +13,7 @@
             v-model="form.name"
             placeholder="请输入文章名称"
             :maxlength="20"
+            :disabled="isDisable"
           ></el-input>
         </el-form-item>
         <el-form-item label="文章简介：" prop="synopsis">
@@ -21,6 +22,7 @@
             :rows="2"
             placeholder="请输入文章简介"
             v-model="form.synopsis"
+            :disabled="isDisable"
           >
           </el-input>
         </el-form-item>
@@ -30,6 +32,7 @@
             v-model="form.author"
             placeholder="请输入作者名称"
             :maxlength="20"
+            :disabled="isDisable"
           ></el-input>
         </el-form-item>
         <el-form-item label="写作日期：" prop="writing_time">
@@ -37,18 +40,24 @@
             v-model="form.writing_time"
             type="date"
             placeholder="选择日期"
+            :disabled="isDisable"
           >
           </el-date-picker>
         </el-form-item>
         <el-form-item label="关联tag：" prop="tag">
-          <template v-if="!form.tag || form.tag.length == 0">
-            <el-link type="primary" @click="openTagPop">选择关联tag</el-link>
-          </template>
-          <template v-else v-for="(item, index) in form.tag">
-            <el-tag size="medium" closable :key="index" @close="delChoiceTag">{{
-              item
-            }}</el-tag>
-          </template>
+          <el-tag
+            v-for="(item, index) in form.tag"
+            size="small"
+            type="success"
+            :closable="!isDisable"
+            :key="index"
+            @close="delChoiceTag(index)"
+            style="margin-right: 10px"
+            >{{ item.name }}</el-tag
+          >
+          <el-link type="primary" @click="openTagPop" v-if="!isDisable"
+            >选择关联tag</el-link
+          >
         </el-form-item>
         <el-form-item label="上传文档：" prop="mdPath">
           <upLoadMd
@@ -59,7 +68,12 @@
       </el-form>
       <el-row>
         <el-col class="text-right">
-          <el-button type="primary" size="mini" @click="save">保存</el-button>
+          <el-button type="primary" size="mini" @click="save" v-if="!isDisable"
+            >保存</el-button
+          >
+          <el-button size="mini" @click="goBack" v-if="isDisable"
+            >返回</el-button
+          >
         </el-col>
       </el-row>
     </el-card>
@@ -67,6 +81,7 @@
       title="tag选择"
       :visible.sync="tagListOpen"
       @close="closeTagList"
+      :close-on-click-modal="false"
     >
       <el-button type="primary" size="mini" @click="addTag" class="addTag"
         >新建tag</el-button
@@ -107,12 +122,18 @@
           <el-table-column prop="name" label="tag"></el-table-column>
           <el-table-column label="操作" fixed="right" width="200">
             <template slot-scope="scope">
-              <el-button size="small" type="text" @click="choiceTag(scope.name)"
-                >选择</el-button
+              <el-button
+                size="small"
+                type="text"
+                @click="tagClick(scope.row)"
+                >{{ scope.row.select ? "取消选择" : "选择" }}</el-button
               >
             </template>
           </el-table-column>
         </el-table>
+        <el-button size="mini" type="primary" @click="savaChoiceTag"
+          >确定</el-button
+        >
       </template>
     </el-dialog>
   </div>
@@ -122,6 +143,7 @@ export default {
   name: "articleDetali",
   data() {
     return {
+      type: this.$route.query.type,
       form: {
         name: "",
         synopsis: "",
@@ -141,6 +163,18 @@ export default {
         writing_time: [
           { required: true, message: "请输入选择写作时间", trigger: "change" },
         ],
+        tag: [
+          {
+            required: true,
+            // validator: (rule, value, callback) => {
+            //   if (!value || value.length == 0)
+            //     return callback(new Error("请选择tag"))
+            //   return callback()
+            // },
+            message: "请输入选择写作时间",
+            trigger: "change",
+          },
+        ],
         // mdPath: [{ required: true, message: "请上传文档", trigger: "change" }],
       },
       isEdit: false,
@@ -154,25 +188,48 @@ export default {
       tableData: [],
     }
   },
+  computed: {
+    isDisable() {
+      return this.type == "view"
+    },
+  },
+  mounted() {
+    if (this.type != "add") this.loadData()
+  },
   methods: {
     validate(filed) {
       this.$refs["articleDetaliForm"].validateField(filed)
+    },
+    loadData() {
+      this.$axios
+        .get("/acticleInfo", { params: { id: this.$route.query.id } })
+        .then((res) => {
+          if (res.code == 200) {
+            this.form = res.data
+          }
+        })
     },
     save() {
       this.$refs["articleDetaliForm"].validate((valid) => {
         if (valid) {
           this.form.writing_time = this.form.writing_time - 0
-          this.$axios.post("/acticleAdd", this.form).then((res) => {
-            this.isEdit = true
-            if (res.code == 200) {
-              this.$alert("保存成功", "提示", {
-                confirmButtonText: "确定",
-                callback: () => {
-                  this.$router.back(-1)
-                },
-              })
-            }
-          })
+          this.form.tag.map((it) => it._id)
+          this.$axios
+            .post(
+              `/${this.type == "add" ? "acticleAdd" : "acticleEdit"}`,
+              this.form
+            )
+            .then((res) => {
+              this.isEdit = true
+              if (res.code == 200) {
+                this.$alert("保存成功", "提示", {
+                  confirmButtonText: "确定",
+                  callback: () => {
+                    this.$router.back(-1)
+                  },
+                })
+              }
+            })
         }
       })
     },
@@ -187,14 +244,31 @@ export default {
       this.tableLoading = true
       this.$axios.get("/tagList").then((res) => {
         if (res.code == 200) {
-          this.tableData = res.data.list
+          let list = res.data.list,
+            formTag = this.form.tag || []
+          this.tableData = list.map((it, i, list) => {
+            it["index"] = i
+            it["select"] = false
+            formTag.forEach((res) => {
+              if (res.name == it.name) {
+                it["select"] = true
+              }
+            })
+            return it
+          })
           this.tableLoading = false
         }
       })
     },
-    delChoiceTag() {},
+    goBack() {
+      this.$router.back(-1)
+    },
+    delChoiceTag(e) {
+      this.form.tag.splice(e, 1)
+    },
     closeTagList() {
       // console.log('aaa')
+      this.validate("tag")
     },
     addTag() {
       this.isAddTag = true
@@ -210,7 +284,23 @@ export default {
     cancelAddTag() {
       this.isAddTag = false
     },
-    choiceTag() {},
+    tagClick(e) {
+      this.tableData[e.index].select = !e.select
+    },
+    savaChoiceTag() {
+      let arr = this.tableData,
+        list = []
+      arr.forEach((it) => {
+        if (it.select) {
+          delete it.index
+          delete it.select
+          list.push(it)
+        }
+      })
+      this.form.tag = list
+      this.tagListOpen = false
+      this.validate("tag")
+    },
   },
   beforeRouteLeave(to, from, next) {
     from.meta.isEdit = this.isEdit

@@ -50,12 +50,26 @@
         <el-table-column prop="code" label="编号" width="180"></el-table-column>
         <el-table-column label="文章名称">
           <template slot-scope="scope">
-            <div style="text-align:left">{{scope.row.name}}</div>
+            <div style="text-align: left">{{ scope.row.name }}</div>
           </template>
         </el-table-column>
         <el-table-column label="写作时间">
           <template slot-scope="scope">
-            <div>{{scope.row.writing_time | filterFormatTime("yyyy年MM月dd日")}}</div>
+            <div>
+              {{ scope.row.writing_time | filterFormatTime("yyyy年MM月dd日") }}
+            </div>
+          </template>
+        </el-table-column>
+        <el-table-column label="关联tag">
+          <template slot-scope="scope">
+            <el-tag
+              v-for="(item, index) in scope.row.tag"
+              size="mini"
+              type="success"
+              :key="index"
+              style="margin-right: 10px"
+              >{{ item.name }}</el-tag
+            >
           </template>
         </el-table-column>
         <el-table-column
@@ -125,7 +139,7 @@ export default {
         this.queryTime && this.queryTime.length == 2
           ? this.queryTime[1] - 0
           : ""
-      this.$axios.get("/acticleList", { params: this.params }).then(res=>{
+      this.$axios.get("/acticleList", { params: this.params }).then((res) => {
         this.tableData = res.data.list
         this.total = res.data.total
       })
@@ -144,13 +158,11 @@ export default {
     },
     //新建查看编辑
     fnJump(type, row) {
-      let id = row ? row.id : ""
-      if (type == "add") {
-        this.$router.push({
-          name: "articlesDetali",
-          query: { type },
-        })
-      }
+      let id = row ? row._id : ""
+      this.$router.push({
+        name: "articlesDetali",
+        query: { type, id },
+      })
     },
     initParams(isReset) {
       this.queryTime = []
@@ -168,9 +180,10 @@ export default {
     },
   },
   beforeRouteEnter(to, from, next) {
-    if (from.name == "articleDetali") {
+    if (from.name == "articlesDetali") {
       to.meta.isBack = true
       to.meta.isEdit = from.meta.isEdit
+      console.log( to.meta.isBack)
     } else {
       to.meta.isBack = false
     }
@@ -181,10 +194,9 @@ export default {
       !this.$route.meta.isBack ||
       (this.$route.meta.isBack && this.$route.meta.isEdit)
     ) {
-      this.queryTime = []
-      this.initParams()
       this.loadData()
     }
+    this.initParams()
     // 请求完后进行初始化
     this.$route.meta.isBack = false
     this.$route.meta.isEdit = false

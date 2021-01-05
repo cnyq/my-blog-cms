@@ -11,7 +11,15 @@
       <el-button size="small" type="primary">点击上传</el-button>
       <div class="el-upload__tip" slot="tip">提示：只能上传md文档</div>
     </el-upload>
-    <div>{{ value }}</div>
+    <div v-if="value">
+      <el-tag
+        size="small"
+        type="success"
+        :closable="type != 'view'"
+        @close="delPath()"
+        >{{ value }}</el-tag
+      >
+    </div>
   </div>
 </template>
 <script>
@@ -27,25 +35,33 @@ export default {
     value: {
       default: "",
     },
+    size:{
+      default: 1000,
+    }
   },
   methods: {
     onChange(file) {},
     beforeMdUpload(file) {
-      console.log(file)
       let nameArr = file.name.split(".")
       const isType = nameArr.length > 1 && nameArr[nameArr.length - 1] === "md"
-      console.log(isType)
+      if(file.size > this.size){
+        this.$message.error(`上传失败！限制大小在${this.size}KB内`)
+        return false
+      }
       if (!isType) {
         this.$message.error("上传失败！只能上传md格式的文档！")
       }
       return isType
     },
     onSuccess(res) {
-      console.log(res)
       if (res.code == 200) {
         this.$emit("input", res.data.url)
         this.$emit("reuseValidate", true)
       }
+    },
+    delPath() {
+      this.$emit("input", '')
+      this.$emit("reuseValidate", true)
     },
   },
 }
