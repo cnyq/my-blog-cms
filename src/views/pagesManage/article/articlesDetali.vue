@@ -62,8 +62,14 @@
         <el-form-item label="上传文档：" prop="mdPath">
           <upLoadMd
             v-model="form.mdPath"
-            @reuseValidate="reuseValidate"
+            @reuseValidateMd="reuseValidateMd"
           ></upLoadMd>
+        </el-form-item>
+        <el-form-item label="上传简介图：" prop="banner">
+          <upLoadImg
+            :fileList="form.banner"
+            @reuseValidateImg="reuseValidateImg"
+          ></upLoadImg>
         </el-form-item>
       </el-form>
       <el-row>
@@ -151,6 +157,7 @@ export default {
         writing_time: "",
         tag: [],
         mdPath: "",
+        banner: [],
       },
       rules: {
         name: [{ required: true, message: "请输入文章名称", trigger: "blur" }],
@@ -171,11 +178,14 @@ export default {
             //     return callback(new Error("请选择tag"))
             //   return callback()
             // },
-            message: "请输入选择写作时间",
+            message: "请选择tag",
             trigger: "change",
           },
         ],
         // mdPath: [{ required: true, message: "请上传文档", trigger: "change" }],
+        banner: [
+          { required: true, message: "请上传banner", trigger: "change" },
+        ],
       },
       isEdit: false,
       tagList: [],
@@ -233,8 +243,14 @@ export default {
         }
       })
     },
-    reuseValidate(val) {
+    reuseValidateMd(val) {
       if (val) this.validate("mdPath")
+    },
+    reuseValidateImg(val) {
+      console.log(val)
+      let fileArr = val
+      this.form.banner = fileArr.map((it) => it.fileUrl)
+      this.validate("banner")
     },
     openTagPop() {
       this.tagListOpen = true

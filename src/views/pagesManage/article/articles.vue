@@ -26,13 +26,25 @@
             end-placeholder="结束时间"
           ></el-date-picker>
         </el-form-item>
-        <el-form-item>
-          <el-button size="small" type="primary" @click="query()"
-            >查询</el-button
-          >
-          <el-button size="small" @click="initParams(true)">重置</el-button>
-          <el-button size="small" @click="fnJump('add')">新建</el-button>
-        </el-form-item>
+        <div>
+          <el-form-item label="关联tag：">
+            <el-checkbox-group v-model="tagArr" @change="choiceTag">
+              <el-checkbox
+                v-for="(tag, index) in tagList"
+                :label="tag._id"
+                :key="index"
+                >{{ tag.name }}</el-checkbox
+              >
+            </el-checkbox-group>
+          </el-form-item>
+          <el-form-item>
+            <el-button size="small" type="primary" @click="query()"
+              >查询</el-button
+            >
+            <el-button size="small" @click="initParams(true)">重置</el-button>
+            <el-button size="small" @click="fnJump('add')">新建</el-button>
+          </el-form-item>
+        </div>
       </el-form>
     </div>
     <div class="table-wrap">
@@ -114,6 +126,7 @@ export default {
     return {
       isSave: false,
       queryTime: [],
+      tagArr: [],
       params: {
         pageSize: 10,
         pageNum: 1,
@@ -121,15 +134,28 @@ export default {
         author: "",
         startTime: "",
         endTime: "",
+        tag: '',
       },
       tableLoading: false,
       tableData: [],
+      tagList: [],
       total: 0,
     }
   },
   created() {},
 
   methods: {
+    getTagList() {
+      return new Promise((res, rej) => {
+        this.$axios.get("/tagList").then((it) => {
+          if (it.code == 200) {
+            this.tagList = it.data.list
+            console.log("aaaa")
+            res(true)
+          }
+        })
+      })
+    },
     loadData() {
       this.params.startTime =
         this.queryTime && this.queryTime.length == 2
@@ -139,7 +165,10 @@ export default {
         this.queryTime && this.queryTime.length == 2
           ? this.queryTime[1] - 0
           : ""
+      // let tagArr = this.params.tag || []
+      this.params.tag = this.tagArr.join(',')
       this.$axios.get("/acticleList", { params: this.params }).then((res) => {
+        console.log("bbb")
         this.tableData = res.data.list
         this.total = res.data.total
       })
@@ -173,17 +202,21 @@ export default {
         author: "",
         startTime: "",
         endTime: "",
+        tag: '',
       }
       if (isReset) {
         this.loadData()
       }
+    },
+    choiceTag(e){
+      console.log(e)
+      this.tagArr = e
     },
   },
   beforeRouteEnter(to, from, next) {
     if (from.name == "articlesDetali") {
       to.meta.isBack = true
       to.meta.isEdit = from.meta.isEdit
-      console.log( to.meta.isBack)
     } else {
       to.meta.isBack = false
     }
@@ -194,7 +227,11 @@ export default {
       !this.$route.meta.isBack ||
       (this.$route.meta.isBack && this.$route.meta.isEdit)
     ) {
-      this.loadData()
+      this.getTagList().then((res) => {
+        if (res) {
+          this.loadData()
+        }
+      })
     }
     this.initParams()
     // 请求完后进行初始化

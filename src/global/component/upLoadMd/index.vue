@@ -36,7 +36,7 @@ export default {
       default: "",
     },
     size:{
-      default: 1000,
+      default: 1024*1024,
     }
   },
   methods: {
@@ -56,12 +56,12 @@ export default {
     onSuccess(res) {
       if (res.code == 200) {
         this.$emit("input", res.data.url)
-        this.$emit("reuseValidate", true)
+        this.$emit("reuseValidateMd", true)
       }
     },
     delPath() {
       this.$emit("input", '')
-      this.$emit("reuseValidate", true)
+      this.$emit("reuseValidateMd", true)
     },
   },
 }
