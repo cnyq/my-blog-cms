@@ -31,7 +31,7 @@
             <el-checkbox-group v-model="tagArr" @change="choiceTag">
               <el-checkbox
                 v-for="(tag, index) in tagList"
-                :label="tag._id"
+                :label="tag.code"
                 :key="index"
                 >{{ tag.name }}</el-checkbox
               >
@@ -103,6 +103,12 @@
               @click="fnJump('edit', scope.row)"
               >编辑</el-button
             >
+            <el-button
+              size="small"
+              type="text"
+              @click="fnJump('del', scope.row)"
+              >删除</el-button
+            >
           </template>
         </el-table-column>
       </el-table>
@@ -134,7 +140,7 @@ export default {
         author: "",
         startTime: "",
         endTime: "",
-        tag: '',
+        tag: "",
       },
       tableLoading: false,
       tableData: [],
@@ -166,9 +172,8 @@ export default {
           ? this.queryTime[1] - 0
           : ""
       // let tagArr = this.params.tag || []
-      this.params.tag = this.tagArr.join(',')
+      this.params.tag = this.tagArr.join(",")
       this.$axios.get("/acticleList", { params: this.params }).then((res) => {
-        console.log("bbb")
         this.tableData = res.data.list
         this.total = res.data.total
       })
@@ -188,13 +193,23 @@ export default {
     //新建查看编辑
     fnJump(type, row) {
       let id = row ? row._id : ""
-      this.$router.push({
-        name: "articlesDetali",
-        query: { type, id },
+      if (type != "del") {
+        this.$router.push({
+          name: "articlesDetali",
+          query: { type, id },
+        })
+      } else {
+        this.delArticles(id)
+      }
+    },
+    delArticles(id) {
+      this.$axios.post("/acticleDel", { _id: id }).then((res) => {
+        
       })
     },
     initParams(isReset) {
       this.queryTime = []
+      this.tagArr = []
       this.params = {
         pageSize: 10,
         pageNum: 1,
@@ -202,13 +217,13 @@ export default {
         author: "",
         startTime: "",
         endTime: "",
-        tag: '',
+        tag: "",
       }
       if (isReset) {
         this.loadData()
       }
     },
-    choiceTag(e){
+    choiceTag(e) {
       console.log(e)
       this.tagArr = e
     },

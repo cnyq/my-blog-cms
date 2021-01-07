@@ -183,9 +183,9 @@ export default {
           },
         ],
         // mdPath: [{ required: true, message: "请上传文档", trigger: "change" }],
-        banner: [
-          { required: true, message: "请上传banner", trigger: "change" },
-        ],
+        // banner: [
+        //   { required: true, message: "请上传banner", trigger: "change" },
+        // ],
       },
       isEdit: false,
       tagList: [],
@@ -223,7 +223,7 @@ export default {
       this.$refs["articleDetaliForm"].validate((valid) => {
         if (valid) {
           this.form.writing_time = this.form.writing_time - 0
-          this.form.tag.map((it) => it._id)
+          this.form.tagCode = this.form.tag.map((it) => ({ code: it.code }))
           this.$axios
             .post(
               `/${this.type == "add" ? "acticleAdd" : "acticleEdit"}`,
