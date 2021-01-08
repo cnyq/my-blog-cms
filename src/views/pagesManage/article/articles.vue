@@ -27,7 +27,7 @@
           ></el-date-picker>
         </el-form-item>
         <div>
-          <el-form-item label="关联tag：">
+          <el-form-item label="关联tag：" hidden="tagArr.length == 0">
             <el-checkbox-group v-model="tagArr" @change="choiceTag">
               <el-checkbox
                 v-for="(tag, index) in tagList"
@@ -156,13 +156,13 @@ export default {
         this.$axios.get("/tagList").then((it) => {
           if (it.code == 200) {
             this.tagList = it.data.list
-            console.log("aaaa")
             res(true)
           }
         })
       })
     },
     loadData() {
+      this.tableLoading = true
       this.params.startTime =
         this.queryTime && this.queryTime.length == 2
           ? this.queryTime[0] - 0
@@ -176,6 +176,7 @@ export default {
       this.$axios.get("/acticleList", { params: this.params }).then((res) => {
         this.tableData = res.data.list
         this.total = res.data.total
+        this.tableLoading = false
       })
     },
     query() {
@@ -203,9 +204,28 @@ export default {
       }
     },
     delArticles(id) {
-      this.$axios.post("/acticleDel", { _id: id }).then((res) => {
-        
+      this.$confirm("此操作将永久删除, 是否继续?", "提示", {
+        confirmButtonText: "确定",
+        cancelButtonText: "取消",
+        type: "warning",
       })
+        .then(() => {
+          this.$axios.post("/acticleDel", { _id: id }).then((res) => {
+            if (res.code == 200) {
+              this.$message({
+                type: "success",
+                message: "删除成功!",
+              })
+              this.loadData()
+            }
+          })
+        })
+        .catch(() => {
+          this.$message({
+            type: "info",
+            message: "已取消删除",
+          })
+        })
     },
     initParams(isReset) {
       this.queryTime = []
@@ -224,7 +244,6 @@ export default {
       }
     },
     choiceTag(e) {
-      console.log(e)
       this.tagArr = e
     },
   },
