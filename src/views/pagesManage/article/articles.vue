@@ -27,7 +27,7 @@
           ></el-date-picker>
         </el-form-item>
         <div>
-          <el-form-item label="关联tag：" hidden="tagArr.length == 0">
+          <el-form-item label="关联tag：" v-show="tagArr.length != 0">
             <el-checkbox-group v-model="tagArr" @change="choiceTag">
               <el-checkbox
                 v-for="(tag, index) in tagList"

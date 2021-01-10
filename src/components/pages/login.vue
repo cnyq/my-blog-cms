@@ -2,7 +2,7 @@
   <div class="loginPage">
     <el-form :model="params" class="loginBox" :rules="rules" ref="loginForm">
       <el-form-item class="tit">
-        <div class="hint">请登录</div>
+        <div class="hint">{{ isLogin ? "请登录" : "请注册" }}</div>
       </el-form-item>
       <el-form-item prop="username">
         <el-input
@@ -24,9 +24,21 @@
         </el-input>
       </el-form-item>
       <el-form-item>
-        <el-button size="small" type="primary" @click="login()" class="subBtn"
-          >登录</el-button
-        >
+        <template v-if="isLogin">
+          <el-button size="small" type="primary" @click="login()" class="subBtn"
+            >登录</el-button
+          >
+          <el-link type="primary" @click="toRegister()">去注册</el-link>
+        </template>
+        <template v-else>
+          <el-button
+            size="small"
+            type="primary"
+            @click="register()"
+            class="subBtn"
+            >注册</el-button
+          >
+        </template>
       </el-form-item>
     </el-form>
   </div>
@@ -43,9 +55,13 @@ export default {
         ],
         password: [{ required: true, message: "请输入密码", trigger: "blur" }],
       },
+      isLogin: true,
     }
   },
   name: "login",
+  mounted() {
+    this.isLogin = true
+  },
   methods: {
     login() {
       this.$refs["loginForm"].validate((valid) => {
@@ -55,12 +71,39 @@ export default {
             username: this.params.username,
             password: md5(this.params.password),
           }
-          // this.$axios.post("/register", _data).then((res) => {})
           this.$axios.post("/login", _data).then((res) => {
             if (res.data.status == 1) {
               this.$store.dispatch("user/setToken", res.data.token)
               this.$store.dispatch("user/setUserInfo", res.data.userInfo)
               this.$router.push({ path: "/home" })
+            } else {
+              this.$message({
+                message: res.data.hint,
+                type: "error",
+              })
+            }
+          })
+        }
+      })
+    },
+    toRegister() {
+      this.isLogin = false
+    },
+    register() {
+      this.$refs["loginForm"].validate((valid) => {
+        if (valid) {
+          console.log(this.params)
+          let _data = {
+            username: this.params.username,
+            password: md5(this.params.password),
+          }
+          this.$axios.post("/register", _data).then((res) => {
+            if (res.data.status == 1) {
+              this.$message({
+                message: "注册成功",
+                type: "info",
+              })
+               this.isLogin = true
             } else {
               this.$message({
                 message: res.data.hint,

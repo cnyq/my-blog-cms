@@ -293,6 +293,7 @@ export default {
       this.$axios.post("/tagAdd", this.tagParsms).then((res) => {
         if (res.code == 200) {
           this.isAddTag = false
+          this.tagParsms.name = ''
           this.getTagList()
         }
       })

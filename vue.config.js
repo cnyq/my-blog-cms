@@ -7,7 +7,7 @@ const {
   port,
   npm_config_port
 } = process.env
-const startPort = port || npm_config_port || 1205
+const startPort = port || npm_config_port || 1206
 const IS_DEV = NODE_ENV === 'development'
 const externals = {
   vue: "Vue",
