@@ -61,7 +61,7 @@
         </el-form-item>
         <el-form-item label="上传文档：" prop="mdPath">
           <upLoadMd
-            v-model="form.mdPath"
+            v-model="form.mdInfo"
             @reuseValidateMd="reuseValidateMd"
           ></upLoadMd>
         </el-form-item>

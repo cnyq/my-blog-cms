@@ -17,7 +17,7 @@
         type="success"
         :closable="type != 'view'"
         @close="delPath()"
-        >{{ value }}</el-tag
+        >{{ fileName }}</el-tag
       >
     </div>
   </div>
@@ -29,22 +29,23 @@ export default {
     return {
       uploadMdUrl: "/cms/uploadMd",
       type: this.$route.query.type,
+      fileName: "",
     }
   },
   props: {
     value: {
       default: "",
     },
-    size:{
-      default: 1024*1024,
-    }
+    size: {
+      default: 1024 * 1024,
+    },
   },
   methods: {
     onChange(file) {},
     beforeMdUpload(file) {
       let nameArr = file.name.split(".")
       const isType = nameArr.length > 1 && nameArr[nameArr.length - 1] === "md"
-      if(file.size > this.size){
+      if (file.size > this.size) {
         this.$message.error(`上传失败！限制大小在${this.size}KB内`)
         return false
       }
@@ -55,13 +56,38 @@ export default {
     },
     onSuccess(res) {
       if (res.code == 200) {
-        this.$emit("input", res.data.url)
+        this.fileName = res.data.name
+        this.$emit("input", res.data.id)
         this.$emit("reuseValidateMd", true)
       }
     },
     delPath() {
-      this.$emit("input", '')
-      this.$emit("reuseValidateMd", true)
+      this.$confirm("此操作将永久删除, 是否继续?", "提示", {
+        confirmButtonText: "确定",
+        cancelButtonText: "取消",
+        type: "warning",
+      })
+        .then(() => {
+          this.$axios
+            .post("/delActicleInfo", { _id: this.value })
+            .then((res) => {
+              if (res.code == 200) {
+                this.$message({
+                  type: "success",
+                  message: "删除成功!",
+                })
+                this.fileName = ""
+                this.$emit("input", "")
+                this.$emit("reuseValidateMd", true)
+              }
+            })
+        })
+        .catch(() => {
+          this.$message({
+            type: "info",
+            message: "已取消删除",
+          })
+        })
     },
   },
 }
