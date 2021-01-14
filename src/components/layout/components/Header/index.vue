@@ -51,7 +51,7 @@ export default {
       this.$store.dispatch("app/updateCollapse", !this.isCollapse)
     },
     quit() {
-      console.log("quit")
+      // console.log("quit")
       this.$store.dispatch("user/resetToken")
       this.$store.dispatch("user/resetUserInfo")
     },

@@ -6,18 +6,18 @@
       :limit="1"
       :before-upload="beforeMdUpload"
       :on-success="onSuccess"
-      v-if="type != 'view' && !value"
+      v-if="type != 'view' && !value._id"
     >
       <el-button size="small" type="primary">点击上传</el-button>
       <div class="el-upload__tip" slot="tip">提示：只能上传md文档</div>
     </el-upload>
-    <div v-if="value">
+    <div v-if="value._id">
       <el-tag
         size="small"
         type="success"
         :closable="type != 'view'"
         @close="delPath()"
-        >{{ fileName }}</el-tag
+        >{{ value.name }}</el-tag
       >
     </div>
   </div>
@@ -57,7 +57,7 @@ export default {
     onSuccess(res) {
       if (res.code == 200) {
         this.fileName = res.data.name
-        this.$emit("input", res.data.id)
+        this.$emit("input", res.data)
         this.$emit("reuseValidateMd", true)
       }
     },
@@ -77,7 +77,7 @@ export default {
                   message: "删除成功!",
                 })
                 this.fileName = ""
-                this.$emit("input", "")
+                this.$emit("input", {})
                 this.$emit("reuseValidateMd", true)
               }
             })

@@ -6,17 +6,21 @@
 
 <script>
 import VueScript2 from "vue-script2"
+import { mapGetters } from "vuex"
 export default {
   name: "home",
   data() {
     return {
       typedOptions: [
-        '富强、民主、文明、',
-        '和谐、自由、平等、',
-        '公正、法治、爱国、',
-        '敬业、诚信、友善'
-      ]
+        "富强、民主、文明、",
+        "和谐、自由、平等、",
+        "公正、法治、爱国、",
+        "敬业、诚信、友善",
+      ],
     }
+  },
+  computed: {
+    ...mapGetters(["userInfo"]),
   },
   mounted() {
     VueScript2.load("https://cdn.bootcss.com/typed.js/2.0.5/typed.js").then(
@@ -24,6 +28,13 @@ export default {
         this.typed()
       }
     )
+    this.$axios.get("/user").then((res) => {
+      if (res.code == 200) {
+        if (!this.userInfo.userName) {
+          this.$store.dispatch("user/setUserInfo", res.data.userInfo)
+        }
+      }
+    })
   },
   methods: {
     //打字机typed.js插件
@@ -34,10 +45,10 @@ export default {
         typeSpeed: 150,
         loop: true,
         backDelay: 2000,
-        backSpeed: 60
+        backSpeed: 60,
       })
-    }
-  }
+    },
+  },
 }
 </script>
 <style lang="scss">
