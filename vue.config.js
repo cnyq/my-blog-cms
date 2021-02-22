@@ -65,15 +65,15 @@ module.exports = {
       errors: true
     },
     // 代理服务器配置
-    // proxy: {
-    //   '/cms': {
-    //     target: process.env.target,
-    //     changeOrigin: true,
-    //     pathRewrite: {
-    //       '^/cms': '/cms'
-    //     }
-    //   },
-    // }
+    proxy: {
+      '/cms': {
+        target: process.env.target,
+        changeOrigin: true,
+        pathRewrite: {
+          '^/cms': '/cms'
+        }
+      },
+    }
   },
   configureWebpack: () => {
     return {
