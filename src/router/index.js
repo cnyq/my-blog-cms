@@ -28,7 +28,7 @@ const routes = [
   },{
     path: '/login',
     name: 'login',
-    component: () => import('@/components/pages/login')
+    component: () => import('@/components/pages/login1')
   },{
     path: '*', redirect: '/404', hidden: true
   },
