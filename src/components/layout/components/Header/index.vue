@@ -56,7 +56,6 @@ export default {
       this.$store.dispatch("user/resetUserInfo")
     },
     handleCommand(e) {
-      console.log(e)
       if (e == "quit") {
         this.$store.dispatch("user/resetToken")
         this.$store.dispatch("user/resetUserInfo")

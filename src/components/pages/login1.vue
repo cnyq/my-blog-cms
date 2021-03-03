@@ -1,6 +1,6 @@
 <template>
   <div id="login-page">
-    <div class="canvasBg">
+    <div class="canvasBg" @click="clickBg()">
       <canvas id="c1" width="1920" height="969"></canvas>
       <canvas id="c2" width="1920" height="969"></canvas>
     </div>
@@ -82,10 +82,23 @@ console.log("canvasBg", canvasBg)
 export default {
   data() {
     return {
-      loginParams: {},
-      loginRules: {},
-      registerParams: {},
-      registerRules: {},
+      loginParams: {
+        username: "",
+        password: "",
+      },
+      loginRules: {
+        username: [
+          { required: true, message: "请输入用户名", trigger: "blur" },
+        ],
+        password: [{ required: true, message: "请输入密码", trigger: "blur" }],
+      },
+      registerParams: { username: "", password: "" },
+      registerRules: {
+        username: [
+          { required: true, message: "请输入用户名", trigger: "blur" },
+        ],
+        password: [{ required: true, message: "请输入密码", trigger: "blur" }],
+      },
       showBox: "login",
     }
   },
@@ -95,9 +108,59 @@ export default {
     window.addEventListener("resize", this.onWindowResize)
   },
   methods: {
-    login() {},
-    register() {},
-    goback() {},
+    login() {
+      this.$refs["loginForm"].validate((valid) => {
+        if (valid) {
+          console.log(this.loginParams)
+          let _data = {
+            username: this.loginParams.username,
+            password: md5(this.loginParams.password),
+          }
+          this.$axios.post("/login", _data).then((res) => {
+            if (res.data.status == 1) {
+              this.$store.dispatch("user/setToken", res.data.token)
+              this.$store.dispatch("user/setUserInfo", res.data.userInfo)
+              this.$router.push({ path: "/home" })
+            } else {
+              this.$message({
+                message: res.data.hint,
+                type: "error",
+              })
+            }
+          })
+        }
+      })
+    },
+    register() {
+      this.$refs["registerForm"].validate((valid) => {
+        if (valid) {
+          console.log(this.registerParams)
+          let _data = {
+            username: this.registerParams.username,
+            password: md5(this.registerParams.password),
+          }
+          this.$axios.post("/register", _data).then((res) => {
+            if (res.data.status == 1) {
+              this.$store.dispatch("user/setToken", res.data.token)
+              this.$store.dispatch("user/setUserInfo", res.data.userInfo)
+              this.$router.push({ path: "/home" })
+            } else {
+              this.$message({
+                message: res.data.hint,
+                type: "error",
+              })
+            }
+          })
+        }
+      })
+    },
+    goback(type) {
+      this.$refs[`${type}Form`].resetFields()
+      this.showBox = type
+    },
+    clickBg(){
+      canvasBg.create()
+    },
     onWindowResize() {
       canvasBg.resize()
     },
@@ -208,7 +271,7 @@ export default {
     color: #d3d7f7;
     font-size: 10px;
   }
-  .el-form-item__content{
+  .el-form-item__content {
     line-height: 30px;
   }
   .el-input {
@@ -216,8 +279,8 @@ export default {
     border: none;
     box-shadow: none;
   }
-  .el-input--small .el-input__icon{
-    color: #D3D7F7;
+  .el-input--small .el-input__icon {
+    color: #d3d7f7;
     font-size: 14px;
   }
   input {
