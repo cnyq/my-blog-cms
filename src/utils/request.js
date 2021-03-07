@@ -61,6 +61,8 @@ service.interceptors.response.use(
         type: 'error',
         duration: 2 * 1000,
         onClose: () => {
+          store.dispatch("user/resetToken")
+          store.dispatch("user/resetUserInfo")
           router.push({ path: '/login' })
         }
       })

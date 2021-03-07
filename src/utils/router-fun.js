@@ -73,16 +73,32 @@ export const setCrumbList = (to) => {
     setTitle(sonTit)
     if (arr.length > 0) {
       let obj = arr[0]
-      updateCrumbList = [{
-        title: '首页',
-        router: '/home'
-      }, {
-        title: obj.title,
-        router: obj.router
-      }, {
-        title: sonTit,
-        router: ''
-      }]
+      if(obj.grade == 1){
+        updateCrumbList = [{
+          title: '首页',
+          router: '/home'
+        }, {
+          title: obj.title,
+          router: obj.router
+        }, {
+          title: sonTit,
+          router: ''
+        }]
+      }else if(obj.grade == 2){
+        updateCrumbList = [{
+          title: '首页',
+          router: '/home'
+        }, {
+          title: obj.groupTitle,
+          router: ''
+        },{
+          title: obj.title,
+          router: obj.router
+        }, {
+          title: sonTit,
+          router: ''
+        }]
+      }
     }
   }
   store.dispatch("app/updateCrumbList", updateCrumbList)

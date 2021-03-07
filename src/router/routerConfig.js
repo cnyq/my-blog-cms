@@ -14,12 +14,28 @@ NProgress.configure({
 })
 const keepAliveArr = ['articles']
 router.beforeEach(async (to, from, next) => {
-  NProgress.start()
+  // NProgress.start()
   if (keepAliveArr.includes(to.name)) {
     store.dispatch('app/addKeepAlive', to.name)
   }
-  setCrumbList(to)
-  next()
+  if(to.path == '/login'){
+    if(store.state.user.token){
+      NProgress.start()
+      setCrumbList(to)
+      next({path: '/'})
+    }else{
+      next()
+    }
+  }else{
+    if(store.state.user.token){
+      NProgress.start()
+      setCrumbList(to)
+      next()
+    }else{
+      next({path: '/login'})
+    }
+  }
+
 })
 
 router.afterEach(() => {
