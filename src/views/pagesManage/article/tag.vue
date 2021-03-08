@@ -2,51 +2,22 @@
   <div class="container">
     <div class="filter-form">
       <el-form :inline="true" :model="params" label-position="left">
-        <el-form-item label="文章名称：">
+        <el-form-item label="标签名称：">
           <el-input
             size="small"
             v-model.trim="params.name"
-            placeholder="请输入文章名称"
+            placeholder="请输入标签名称"
           ></el-input>
         </el-form-item>
-        <el-form-item label="作者名称：">
-          <el-input
-            size="small"
-            v-model.trim="params.author"
-            placeholder="请输入作者名称"
-          ></el-input>
+        <el-form-item>
+          <el-button size="small" type="primary" @click="query()"
+            >查询</el-button
+          >
+          <el-button size="small" @click="initParams(true)">重置</el-button>
+          <el-button size="small" v-rules="2" @click="fnJump('add')"
+            >新建</el-button
+          >
         </el-form-item>
-        <el-form-item label="写作时间：">
-          <el-date-picker
-            size="small"
-            v-model="queryTime"
-            type="daterange"
-            range-separator="至"
-            start-placeholder="开始时间"
-            end-placeholder="结束时间"
-          ></el-date-picker>
-        </el-form-item>
-        <div>
-          <el-form-item label="关联tag：" v-show="tagList.length != 0">
-            <el-checkbox-group v-model="tagArr" @change="choiceTag">
-              <el-checkbox
-                v-for="(tag, index) in tagList"
-                :label="tag.code"
-                :key="index"
-                >{{ tag.name }}</el-checkbox
-              >
-            </el-checkbox-group>
-          </el-form-item>
-          <el-form-item>
-            <el-button size="small" type="primary" @click="query()"
-              >查询</el-button
-            >
-            <el-button size="small" @click="initParams(true)">重置</el-button>
-            <el-button size="small" v-rules="2" @click="fnJump('add')"
-              >新建</el-button
-            >
-          </el-form-item>
-        </div>
       </el-form>
     </div>
     <div class="table-wrap">
@@ -62,19 +33,12 @@
       >
         <el-table-column type="index" label="序号" width="80"></el-table-column>
         <el-table-column prop="code" label="编号" width="180"></el-table-column>
-        <el-table-column label="文章名称">
+        <el-table-column label="tag名称">
           <template slot-scope="scope">
             <div style="text-align: left">{{ scope.row.name }}</div>
           </template>
         </el-table-column>
-        <el-table-column label="写作时间">
-          <template slot-scope="scope">
-            <div>
-              {{ scope.row.writing_time | filterFormatTime("yyyy年MM月dd日") }}
-            </div>
-          </template>
-        </el-table-column>
-        <el-table-column label="关联tag">
+        <el-table-column label="关联文章">
           <template slot-scope="scope">
             <el-tag
               v-for="(item, index) in scope.row.tag"
@@ -86,26 +50,8 @@
             >
           </template>
         </el-table-column>
-        <el-table-column
-          prop="author"
-          label="作者名称"
-          width="200"
-        ></el-table-column>
         <el-table-column label="操作" fixed="right" width="200">
           <template slot-scope="scope">
-            <el-button
-              size="small"
-              type="text"
-              @click="fnJump('view', scope.row)"
-              >查看</el-button
-            >
-            <el-button
-              size="small"
-              type="text"
-              v-rules="2"
-              @click="fnJump('edit', scope.row)"
-              >编辑</el-button
-            >
             <el-button
               size="small"
               type="text"
@@ -130,7 +76,7 @@
 
 <script>
 export default {
-  name: "articles",
+  name: "tag",
   data() {
     return {
       isSave: false,
@@ -140,10 +86,6 @@ export default {
         pageSize: 10,
         pageNum: 1,
         name: "",
-        author: "",
-        startTime: "",
-        endTime: "",
-        tag: "",
       },
       tableLoading: false,
       tableData: [],
@@ -166,21 +108,6 @@ export default {
     },
     loadData() {
       this.tableLoading = true
-      this.params.startTime =
-        this.queryTime && this.queryTime.length == 2
-          ? this.queryTime[0] - 0
-          : ""
-      this.params.endTime =
-        this.queryTime && this.queryTime.length == 2
-          ? this.queryTime[1] - 0
-          : ""
-      // let tagArr = this.params.tag || []
-      this.params.tag = this.tagArr.join(",")
-      this.$axios.get("/acticleList", { params: this.params }).then((res) => {
-        this.tableData = res.data.list
-        this.total = res.data.total
-        this.tableLoading = false
-      })
     },
     query() {
       this.params.pageNum = 1
@@ -194,18 +121,6 @@ export default {
       this.params.pageNum = page
       this.loadData()
     },
-    //新建查看编辑
-    fnJump(type, row) {
-      let id = row ? row._id : ""
-      if (type != "del") {
-        this.$router.push({
-          name: "articlesDetali",
-          query: { type, id },
-        })
-      } else {
-        this.delArticles(id)
-      }
-    },
     delArticles(id) {
       this.$confirm("此操作将永久删除, 是否继续?", "提示", {
         confirmButtonText: "确定",
@@ -213,15 +128,15 @@ export default {
         type: "warning",
       })
         .then(() => {
-          this.$axios.post("/acticleDel", { _id: id }).then((res) => {
-            if (res.code == 200) {
-              this.$message({
-                type: "success",
-                message: "删除成功!",
-              })
-              this.loadData()
-            }
-          })
+          // this.$axios.post("/acticleDel", { _id: id }).then((res) => {
+          //   if (res.code == 200) {
+          //     this.$message({
+          //       type: "success",
+          //       message: "删除成功!",
+          //     })
+          //     this.loadData()
+          //   }
+          // })
         })
         .catch(() => {
           this.$message({
@@ -237,26 +152,20 @@ export default {
         pageSize: 10,
         pageNum: 1,
         name: "",
-        author: "",
-        startTime: "",
-        endTime: "",
-        tag: "",
       }
       if (isReset) {
         this.loadData()
       }
     },
-    choiceTag(e) {
-      this.tagArr = e
-    },
   },
   beforeRouteEnter(to, from, next) {
-    if (from.name == "articlesDetali") {
-      to.meta.isBack = true
-      to.meta.isEdit = from.meta.isEdit
-    } else {
-      to.meta.isBack = false
-    }
+    // if (from.name == "articlesDetali") {
+    //   to.meta.isBack = true
+    //   to.meta.isEdit = from.meta.isEdit
+    // } else {
+    //   to.meta.isBack = false
+    // }
+    to.meta.isBack = false
     next()
   },
   activated() {

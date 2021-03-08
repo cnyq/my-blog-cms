@@ -38,7 +38,14 @@ const routerConstant = [
     groupTitle: '文章管理',
     title: '文章列表',
     router: '/articles'
-  }
+  },
+  {
+    grade: 2,
+    group: 'article',
+    groupTitle: '文章管理',
+    title: '标签管理',
+    router: '/tag'
+  },
 ]
 
 export {

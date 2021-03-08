@@ -78,7 +78,6 @@
 import { md5 } from "@/utils/crypto"
 import CanvasBg from "@/utils/canvasBg"
 let canvasBg = new CanvasBg("c1", "c2")
-console.log("canvasBg", canvasBg)
 export default {
   data() {
     return {
@@ -111,7 +110,6 @@ export default {
     login() {
       this.$refs["loginForm"].validate((valid) => {
         if (valid) {
-          console.log(this.loginParams)
           let _data = {
             username: this.loginParams.username,
             password: md5(this.loginParams.password),
@@ -134,7 +132,6 @@ export default {
     register() {
       this.$refs["registerForm"].validate((valid) => {
         if (valid) {
-          console.log(this.registerParams)
           let _data = {
             username: this.registerParams.username,
             password: md5(this.registerParams.password),

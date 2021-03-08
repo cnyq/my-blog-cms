@@ -18,21 +18,22 @@ router.beforeEach(async (to, from, next) => {
   if (keepAliveArr.includes(to.name)) {
     store.dispatch('app/addKeepAlive', to.name)
   }
-  if(to.path == '/login'){
-    if(store.state.user.token){
+  let isLoading = store.getters.token && JSON.stringify(store.getters.userInfo) != "{}"
+  if (to.path == '/login') {
+    if (isLoading) {
       NProgress.start()
       setCrumbList(to)
-      next({path: '/'})
-    }else{
+      next({ path: '/' })
+    } else {
       next()
     }
-  }else{
-    if(store.state.user.token){
+  } else {
+    if (isLoading) {
       NProgress.start()
       setCrumbList(to)
       next()
-    }else{
-      next({path: '/login'})
+    } else {
+      next({ path: '/login' })
     }
   }
 

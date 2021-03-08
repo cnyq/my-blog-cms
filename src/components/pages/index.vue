@@ -28,13 +28,6 @@ export default {
         this.typed()
       }
     )
-    this.$axios.get("/user").then((res) => {
-      if (res.code == 200) {
-        if (!this.userInfo.userName) {
-          this.$store.dispatch("user/setUserInfo", res.data.userInfo)
-        }
-      }
-    })
   },
   methods: {
     //打字机typed.js插件
