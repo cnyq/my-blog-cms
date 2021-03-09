@@ -14,7 +14,7 @@
             >查询</el-button
           >
           <el-button size="small" @click="initParams(true)">重置</el-button>
-          <el-button size="small" v-rules="2" @click="fnJump('add')"
+          <el-button size="small" v-rules="1" @click="fnJump('add')"
             >新建</el-button
           >
         </el-form-item>
@@ -33,7 +33,7 @@
       >
         <el-table-column type="index" label="序号" width="80"></el-table-column>
         <el-table-column prop="code" label="编号" width="180"></el-table-column>
-        <el-table-column label="tag名称">
+        <el-table-column label="tag名称" width="260">
           <template slot-scope="scope">
             <div style="text-align: left">{{ scope.row.name }}</div>
           </template>
@@ -41,7 +41,7 @@
         <el-table-column label="关联文章">
           <template slot-scope="scope">
             <el-tag
-              v-for="(item, index) in scope.row.tag"
+              v-for="(item, index) in scope.row.acticle"
               size="mini"
               type="success"
               :key="index"
@@ -55,7 +55,8 @@
             <el-button
               size="small"
               type="text"
-              @click="fnJump('del', scope.row)"
+              @click="delTag(scope.row._id)"
+              v-rules="1"
               >删除</el-button
             >
           </template>
@@ -71,6 +72,35 @@
       :total="total"
     >
     </el-pagination>
+    <el-dialog
+      title="新建tag"
+      :visible.sync="isDialogOpen"
+      @close="closeDialog"
+      :close-on-click-modal="false"
+    >
+      <el-form
+        :inline="true"
+        ref="tagParams"
+        :model="tagParams"
+        label-position="left"
+        :rules="rules"
+      >
+        <el-form-item label="tag名称：" prop="name">
+          <el-input
+            size="small"
+            v-model.trim="tagParams.name"
+            @input="inputChange"
+            placeholder="请输入tag名称"
+          ></el-input>
+        </el-form-item>
+        <el-form-item>
+          <el-button type="primary" size="mini" @click="saveAddTag"
+            >保存</el-button
+          >
+          <el-button size="mini" @click="closeDialog">取消</el-button>
+        </el-form-item>
+      </el-form>
+    </el-dialog>
   </div>
 </template>
 
@@ -91,23 +121,43 @@ export default {
       tableData: [],
       tagList: [],
       total: 0,
+      isDialogOpen: false,
+      tagParams: {
+        name: "",
+      },
+      postError: "noRes",
+      rules: {
+        name: [
+          {
+            required: true,
+            validator: (rule, value, callback) => {
+              if (!value) return callback(new Error("tag名不能为空"))
+              if (this.postError != "noRes") {
+                return callback(new Error(this.postError))
+              }
+              return callback()
+            },
+            trigger: "blur",
+          },
+        ],
+      },
     }
   },
   created() {},
 
   methods: {
-    getTagList() {
-      return new Promise((res, rej) => {
-        this.$axios.get("/tagList").then((it) => {
-          if (it.code == 200) {
-            this.tagList = it.data.list
-            res(true)
-          }
-        })
-      })
+    validate(filed) {
+      this.$refs["tagParams"].validateField(filed)
     },
     loadData() {
       this.tableLoading = true
+      this.$axios.get("/tagList", { params: this.params }).then((it) => {
+        if (it.code == 200) {
+          this.tableData = it.data.list
+          this.total = it.data.total
+          this.tableLoading = false
+        }
+      })
     },
     query() {
       this.params.pageNum = 1
@@ -121,22 +171,65 @@ export default {
       this.params.pageNum = page
       this.loadData()
     },
-    delArticles(id) {
+    fnJump(type) {
+      if (type == "add") {
+        this.isDialogOpen = true
+      }
+    },
+    inputChange(val) {
+      this.postError = "noRes"
+      this.validate("name")
+    },
+    saveAddTag() {
+      this.postError = "noRes"
+      this.$refs["tagParams"].validate((valid) => {
+        if (valid) {
+          this.$axios.post("/tagAdd", this.tagParams).then((res) => {
+            if (res.code == 200) {
+              this.$message({
+                type: "success",
+                message: "新增成功!",
+                duration: 1000,
+                onClose: () => {
+                  this.tagParams.name = ""
+                  this.closeDialog()
+                  this.loadData()
+                },
+              })
+            } else {
+              this.postError = res.msg
+              this.validate("name")
+            }
+          })
+        }
+      })
+    },
+    closeDialog() {
+      this.$refs["tagParams"].resetFields()
+      this.isDialogOpen = false
+    },
+    delTag(id) {
       this.$confirm("此操作将永久删除, 是否继续?", "提示", {
         confirmButtonText: "确定",
         cancelButtonText: "取消",
         type: "warning",
       })
         .then(() => {
-          // this.$axios.post("/acticleDel", { _id: id }).then((res) => {
-          //   if (res.code == 200) {
-          //     this.$message({
-          //       type: "success",
-          //       message: "删除成功!",
-          //     })
-          //     this.loadData()
-          //   }
-          // })
+          this.$axios.post("/tagDel", { _id: id }).then((res) => {
+            console.log(res)
+            if (res.code == 200) {
+              this.$message({
+                type: "success",
+                message: "删除成功",
+              })
+              this.loadData()
+            }else{
+              this.$message({
+                type: "error",
+                message: res.msg,
+              })
+            }
+          })
         })
         .catch(() => {
           this.$message({
@@ -146,8 +239,6 @@ export default {
         })
     },
     initParams(isReset) {
-      this.queryTime = []
-      this.tagArr = []
       this.params = {
         pageSize: 10,
         pageNum: 1,
@@ -173,11 +264,7 @@ export default {
       !this.$route.meta.isBack ||
       (this.$route.meta.isBack && this.$route.meta.isEdit)
     ) {
-      this.getTagList().then((res) => {
-        if (res) {
-          this.loadData()
-        }
-      })
+      this.loadData()
     }
     this.initParams()
     // 请求完后进行初始化

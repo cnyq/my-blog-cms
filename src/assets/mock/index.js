@@ -8,13 +8,15 @@ routerConstant.map(it => {
     menuList.push({
       title: it.title,
       router: it.router,
-      children: []
+      children: [],
+      icon: it.icon
     })
   } else if (it.grade == 2) {
     if (menuList.length == 0) {
       menuList.push({
         title: it.groupTitle,
         router: it.group,
+        icon: it.icon,
         children: [{
           title: it.title,
           router: it.router
@@ -34,6 +36,7 @@ routerConstant.map(it => {
         menuList.push({
           title: it.groupTitle,
           router: it.group,
+          icon: it.icon,
           children: [{
             title: it.title,
             router: it.router
@@ -43,6 +46,7 @@ routerConstant.map(it => {
     }
   }
 })
+console.log('menuList',menuList)
 export {
   routerConstant,
   menuList

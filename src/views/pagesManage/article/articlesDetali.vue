@@ -89,9 +89,9 @@
       @close="closeTagList"
       :close-on-click-modal="false"
     >
-      <el-button type="primary" size="mini" @click="addTag" class="addTag"
+      <!-- <el-button type="primary" size="mini" @click="addTag" class="addTag"
         >新建tag</el-button
-      >
+      > -->
       <template v-if="isAddTag">
         <el-form :inline="true" :model="tagParsms" label-position="left">
           <el-form-item label="tag名称：">

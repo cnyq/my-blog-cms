@@ -20,6 +20,7 @@
           <el-avatar :size="35" :src="circleUrl" shape="square"></el-avatar>
         </span>
         <el-dropdown-menu slot="dropdown">
+          <el-dropdown-item command="changePassword">修改密码</el-dropdown-item>
           <el-dropdown-item command="quit">退出</el-dropdown-item>
         </el-dropdown-menu>
       </el-dropdown>
@@ -57,9 +58,24 @@ export default {
     },
     handleCommand(e) {
       if (e == "quit") {
-        this.$store.dispatch("user/resetToken")
-        this.$store.dispatch("user/resetUserInfo")
-        this.$router.push({ path: "/login" })
+        this.$confirm("您确定退出登录吗?", "提示", {
+          confirmButtonText: "确定",
+          cancelButtonText: "取消",
+          type: "warning",
+        })
+          .then(() => {
+            this.$store.dispatch("user/resetToken")
+            this.$store.dispatch("user/resetUserInfo")
+            this.$router.push({ path: "/login" })
+          })
+          .catch(() => {
+            this.$message({
+              type: "info",
+              message: "已取消退出",
+            })
+          })
+      } else if (e == "changePassword") {
+        this.$router.push({ path: "/accountManage" })
       }
     },
   },

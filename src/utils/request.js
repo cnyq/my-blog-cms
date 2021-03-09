@@ -68,7 +68,7 @@ service.interceptors.response.use(
       })
       return Promise.reject(new Error('登录失效'))
     }
-    if (res.code !== 0 && res.code !== 200) {
+    if (res.code !== 0 && res.code !== 200 && res.code !== 201) {
       Message({
         message: res.msg || 'Error',
         type: 'error',

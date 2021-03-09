@@ -29,7 +29,7 @@
           </el-form-item>
           <div class="bottom">
             <span class="subBtn" @click="login()">登录</span>
-            <span class="switchBtn" @click="goback('register')">注册</span>
+            <span class="switchBtn" @click="goback('register')">去注册</span>
           </div>
         </el-form>
         <div class="footer">
@@ -64,7 +64,7 @@
           </el-form-item>
           <div class="bottom">
             <span class="subBtn" @click="register()">注册并登陆</span>
-            <span class="switchBtn" @click="goback('login')">注册</span>
+            <span class="switchBtn" @click="goback('login')">去登陆</span>
           </div>
         </el-form>
         <div class="footer">

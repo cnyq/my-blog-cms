@@ -13,7 +13,7 @@
       <template v-if="items.children.length > 0">
         <el-submenu :index="items.router" :key="index">
           <template slot="title">
-            <i :class="iconState(items.router)"></i>
+            <i :class="items.icon"></i>
             <span slot="title">{{ items.title }}</span>
           </template>
           <el-menu-item
@@ -26,7 +26,7 @@
       </template>
       <template v-if="items.children.length === 0">
         <el-menu-item :index="items.router" :key="index">
-          <i :class="iconState(items.router)"></i>
+          <i :class="items.icon"></i>
           <span slot="title">{{ items.title }}</span>
         </el-menu-item>
       </template>
