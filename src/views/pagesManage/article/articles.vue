@@ -109,6 +109,7 @@
             <el-button
               size="small"
               type="text"
+              v-rules="2"
               @click="fnJump('del', scope.row)"
               >删除</el-button
             >
