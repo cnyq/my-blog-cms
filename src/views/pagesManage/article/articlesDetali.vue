@@ -12,7 +12,9 @@
             size="small"
             v-model="form.name"
             placeholder="请输入文章名称"
-            :maxlength="20"
+            :maxlength="30"
+            :minlength="2"
+            show-word-limit
             :disabled="isDisable"
           ></el-input>
         </el-form-item>
@@ -145,6 +147,7 @@
   </div>
 </template>
 <script>
+import { mapGetters } from "vuex"
 export default {
   name: "articleDetali",
   data() {
@@ -158,9 +161,23 @@ export default {
         tag: [],
         mdPath: "",
         banner: [],
+        username:""
       },
       rules: {
-        name: [{ required: true, message: "请输入文章名称", trigger: "blur" }],
+        name: [
+          {
+            required: true,
+            validator: (rule, value, callback) => {
+              if (!value) return callback(new Error("请输入文章名称"))
+              if (value.length > 30 || value.length < 2)
+                return callback(
+                  new Error("文章名称的长度不能小于2位并且不能大于30位！")
+                )
+              return callback()
+            },
+            trigger: "blur",
+          },
+        ],
         synopsis: [
           { required: true, message: "请输入文章简介", trigger: "blur" },
         ],
@@ -199,6 +216,7 @@ export default {
     }
   },
   computed: {
+    ...mapGetters(["userInfo"]),
     isDisable() {
       return this.type == "view"
     },
@@ -224,6 +242,7 @@ export default {
         if (valid) {
           this.form.writing_time = this.form.writing_time - 0
           this.form.tagCode = this.form.tag.map((it) => ({ code: it.code }))
+          this.form.username = this.userInfo.username
           this.$axios
             .post(
               `/${this.type == "add" ? "acticleAdd" : "acticleEdit"}`,
@@ -293,7 +312,7 @@ export default {
       this.$axios.post("/tagAdd", this.tagParsms).then((res) => {
         if (res.code == 200) {
           this.isAddTag = false
-          this.tagParsms.name = ''
+          this.tagParsms.name = ""
           this.getTagList()
         }
       })

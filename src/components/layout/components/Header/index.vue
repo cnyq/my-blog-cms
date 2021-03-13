@@ -14,7 +14,9 @@
       </div>
     </div>
     <div class="siteRi">
-      <span class="username">{{ userInfo.username }}</span>
+      <span class="username"
+        >{{ authUser(userInfo.auth_status) }}：{{ userInfo.username }}</span
+      >
       <el-dropdown trigger="click" @command="handleCommand">
         <span class="el-dropdown-link">
           <el-avatar :size="35" :src="circleUrl" shape="square"></el-avatar>
@@ -45,6 +47,11 @@ export default {
     ...mapGetters(["isCollapse", "userInfo"]),
     styleSetting() {
       return styleSetting
+    },
+    authUser() {
+      return function (status) {
+        return status == 1 ? "超级管理员" : status == 2 ? "管理员" : "游客"
+      }
     },
   },
   methods: {

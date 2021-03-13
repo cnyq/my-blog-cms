@@ -1,5 +1,5 @@
 <template>
-  <div class="container">
+  <div class="container article">
     <div class="filter-form">
       <el-form :inline="true" :model="params" label-position="left">
         <el-form-item label="文章名称：">
@@ -16,6 +16,13 @@
             placeholder="请输入作者名称"
           ></el-input>
         </el-form-item>
+        <el-form-item label="上传者名称：">
+          <el-input
+            size="small"
+            v-model.trim="params.username"
+            placeholder="请输入上传者名称"
+          ></el-input>
+        </el-form-item>
         <el-form-item label="写作时间：">
           <el-date-picker
             size="small"
@@ -25,6 +32,21 @@
             start-placeholder="开始时间"
             end-placeholder="结束时间"
           ></el-date-picker>
+        </el-form-item>
+        <el-form-item label="发布状态：">
+          <el-select
+            v-model="params.publishStatus"
+            placeholder="请选择"
+            size="small"
+          >
+            <el-option
+              v-for="item in selectMenu"
+              :key="item.value"
+              :label="item.lable"
+              :value="item.value"
+            >
+            </el-option>
+          </el-select>
         </el-form-item>
         <div>
           <el-form-item label="关联tag：" v-show="tagList.length != 0">
@@ -62,19 +84,33 @@
       >
         <el-table-column type="index" label="序号" width="80"></el-table-column>
         <el-table-column prop="code" label="编号" width="180"></el-table-column>
-        <el-table-column label="文章名称">
+        <el-table-column label="文章名称" width="300">
           <template slot-scope="scope">
-            <div style="text-align: left">{{ scope.row.name }}</div>
+            <div style="text-align: left">
+              {{ scope.row.name }}
+            </div>
           </template>
         </el-table-column>
-        <el-table-column label="写作时间">
+        <el-table-column
+          label="作者名称"
+          prop="author"
+          width="120"
+        ></el-table-column>
+        <el-table-column label="写作时间" width="160">
           <template slot-scope="scope">
             <div>
               {{ scope.row.writing_time | filterFormatTime("yyyy年MM月dd日") }}
             </div>
           </template>
         </el-table-column>
-        <el-table-column label="关联tag">
+        <el-table-column label="发布状态">
+          <template slot-scope="scope">
+            <div>
+              {{ scope.row.publishStatus == 1 ? "已发布" : "未发布" }}
+            </div>
+          </template>
+        </el-table-column>
+        <el-table-column label="关联tag" width="200">
           <template slot-scope="scope">
             <el-tag
               v-for="(item, index) in scope.row.tag"
@@ -86,13 +122,42 @@
             >
           </template>
         </el-table-column>
-        <el-table-column
-          prop="author"
-          label="作者名称"
-          width="200"
-        ></el-table-column>
+        <el-table-column label="文章简介" width="400">
+          <template slot-scope="scope">
+            <div style="text-align: left">{{ scope.row.synopsis }}</div>
+          </template>
+        </el-table-column>
+        <el-table-column label="上传人员">
+          <template slot-scope="scope">
+            <div style="text-align: left">{{ scope.row.username }}</div>
+          </template>
+        </el-table-column>
         <el-table-column label="操作" fixed="right" width="200">
           <template slot-scope="scope">
+            <template v-if="userInfo.auth_status == 1">
+              <el-button
+                size="small"
+                type="text"
+                @click="fnJump('view', scope.row)"
+                >{{
+                  scope.row.publishStatus == 1 ? "取消发布" : "发布"
+                }}</el-button
+              >
+            </template>
+            <template
+              v-if="
+                userInfo.auth_status == 2 &&
+                scope.row.publishStatus == 2 &&
+                userInfo.username == scope.row.username
+              "
+            >
+              <el-button
+                size="small"
+                type="text"
+                @click="applyPublish(scope.row)"
+                >申请发布</el-button
+              >
+            </template>
             <el-button
               size="small"
               type="text"
@@ -126,10 +191,43 @@
       :total="total"
     >
     </el-pagination>
+    <!-- 申请发布弹窗 -->
+    <el-dialog
+      title="申请发布"
+      :visible.sync="applyPublishVisible"
+      :close-on-click-modal="false"
+      :before-close="cancelDialog"
+      width="1200px"
+    >
+      <el-form :model="dialogParams" label-position="left">
+        <div class="dialogTit">
+          您当前申请发布的文章为：{{ dialogParams.name }}
+        </div>
+        <div class="dialogHint">您可以下方留言，限制50个字</div>
+        <el-form-item label="申请留言：">
+          <el-input
+            type="textarea"
+            :autosize="{ minRows: 2, maxRows: 4 }"
+            placeholder="请输入申请留言"
+            :maxlength="50"
+            v-model="dialogParams.message"
+            show-word-limit
+          >
+          </el-input>
+        </el-form-item>
+        <div class="text-right">
+          <el-button size="mini" @click="cancelDialog">取消</el-button>
+          <el-button size="mini" type="primary" @click="cancelDialog"
+            >确认申请</el-button
+          >
+        </div>
+      </el-form>
+    </el-dialog>
   </div>
 </template>
 
 <script>
+import { mapGetters } from "vuex"
 export default {
   name: "articles",
   data() {
@@ -145,15 +243,40 @@ export default {
         startTime: "",
         endTime: "",
         tag: "",
+        publishStatus: -1,
+        username: "",
       },
       tableLoading: false,
       tableData: [],
       tagList: [],
       total: 0,
+      selectMenu: [
+        {
+          lable: "全部",
+          value: -1,
+        },
+        {
+          lable: "已发布",
+          value: 1,
+        },
+        {
+          lable: "未发布",
+          value: 2,
+        },
+      ],
+      applyPublishVisible: false,
+      dialogParams: {
+        username: "",
+        name: "",
+        _id: "",
+        message: "",
+      },
     }
   },
   created() {},
-
+  computed: {
+    ...mapGetters(["userInfo"]),
+  },
   methods: {
     getTagList() {
       return new Promise((res, rej) => {
@@ -242,6 +365,8 @@ export default {
         startTime: "",
         endTime: "",
         tag: "",
+        publishStatus: -1,
+        username: "",
       }
       if (isReset) {
         this.loadData()
@@ -249,6 +374,20 @@ export default {
     },
     choiceTag(e) {
       this.tagArr = e
+    },
+    applyPublish(e) {
+      let { name, username, _id } = e
+      console.log(e)
+      this.dialogParams.username = username
+      this.dialogParams._id = _id
+      this.dialogParams.name = name
+      this.applyPublishVisible = true
+    },
+    cancelDialog() {
+      this.dialogParams.username = ""
+      this.dialogParams._id = ""
+      this.dialogParams.name = ""
+      this.applyPublishVisible = false
     },
   },
   beforeRouteEnter(to, from, next) {
@@ -278,3 +417,17 @@ export default {
   },
 }
 </script>
+<style lang="scss">
+// @import "~@/assets/styles/mixin.scss";
+.article {
+  .dialogTit {
+    font-size: 14px;
+    font-weight: bold;
+    line-height: 40px;
+  }
+  .dialogHint {
+    font-size: 12px;
+    line-height: 30px;
+  }
+}
+</style>
